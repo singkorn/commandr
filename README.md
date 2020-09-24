@@ -14,6 +14,10 @@ First, login to Docker registry, by running this command and enter your GitLab c
 
     docker login scm.trendvg3.com:4567
 
+Test by tiger
+
+    docker ps -a
+
 Clone tr_online-v2 from GitLab
 
     git clone git@scm.trendvg3.com:suntunz/tr_online-v2.git
