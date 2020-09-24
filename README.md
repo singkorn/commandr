@@ -4,7 +4,7 @@
 - [Docker](#docker)
 - [Sonarqube](#sonarqube)
 
-## Git
+# Git
 
 List all branches with latest commit order by ascending:
 
@@ -16,23 +16,23 @@ List all branches and then fetch or pull:
     git fetch --all
     git pull --all
 
-## Docker
+# Docker
 
-# Run OWASP ZAP Full Scan on docker
+## Run OWASP ZAP Full Scan on docker
 docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-full-scan.py \
     -t https://www.thairath.dev/home -g gen.conf -r thairath_dev_testreport.html
 
-# Delete docker images by grepping docker names
+## Delete docker images by grepping docker names
 docker images -a | grep "<none>" | awk '{print $3}' | xargs docker rmi
 
-# Force delete docker images by grepping CREATED
+## Force delete docker images by grepping CREATED
 docker rmi --force \
     $(docker images --format '{{.Repository}}:{{.Tag}}:{{.CreatedSince}}' | grep ${IMAGE} | grep 'weeks ago\|months ago\|years ago' | cut -f 1-2 -d ':')
 
-# Find ID of dependent image upon parent image
+## Find ID of dependent image upon parent image
 docker inspect --format='{{.Id}} {{.Parent}}' $(docker images --filter since=<imageId> -q)
 
-## SonarQube
+# SonarQube
 
     docker run \
         --rm \
