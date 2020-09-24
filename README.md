@@ -1,65 +1,78 @@
-# tr_online-v2 for Docker
+# Useful Commands
 
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Commands](#commands)
+- [Git](#git)
+- [Docker](#docker)
+- [Sonarqube](#sonarqube)
+- [JMeter](#jmeter)
 
-## Requirements
+# Git
 
-- [Docker 17.06+](https://www.docker.com/community-edition)
+List all branches with latest commit order by ascending:
 
-## Installation
+    git for-each-ref --sort=-committerdate refs/heads/ --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) - %(contents:subject) - %(authorname) (%(color:green)%(committerdate:relative)%(color:reset))'
 
-First, login to Docker registry, by running this command and enter your GitLab credential:
+List all branches and then fetch or pull:
 
-    docker login scm.trendvg3.com:4567
+    git branch -r | grep -v '\->' | while read remote; do git branch --track "${remote#origin/}" "$remote"; done
+    git fetch --all
+    git pull --all
 
-Test by tiger
+# Docker
 
-    docker ps -a
+## Run OWASP ZAP Full Scan on docker
+docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-full-scan.py \
+    -t https://www.thairath.dev/home -g gen.conf -r thairath_dev_testreport.html
 
-Clone tr_online-v2 from GitLab
+## Delete docker images by grepping docker names
+docker images -a | grep "<none>" | awk '{print $3}' | xargs docker rmi
 
-    git clone git@scm.trendvg3.com:suntunz/tr_online-v2.git
+## Force delete docker images by grepping CREATED
+docker rmi --force \
+    $(docker images --format '{{.Repository}}:{{.Tag}}:{{.CreatedSince}}' | grep ${IMAGE} | grep 'weeks ago\|months ago\|years ago' | cut -f 1-2 -d ':')
 
-Build docker:
+## Find ID of dependent image upon parent image
+docker inspect --format='{{.Id}} {{.Parent}}' $(docker images --filter since=<imageId> -q)
 
-    docker build -t "next1" .
+# SonarQube
 
-Start docker, App will running on port 3000:
+    docker run \
+        --rm \
+        -e SONAR_HOST_URL="http://${SONARQUBE_URL}" \
+        -v "${YOUR_REPO}:/usr/src" \
+        sonarsource/sonar-scanner-cli
 
-    docker run -it -p 3000:3000 "next1"
+    docker run \
+        --rm \
+        -e SONAR_HOST_URL="http://localhost:9000" \
+        -v "/Users/user/Documents/workspace/tr-online:/usr/src" \
+        sonarsource/sonar-scanner-cli
 
-Start docker and set 4 instances of PM2 in cluster mode:
+    URL: https://sonarqube.sngkrn.xyz/projects
+    Token: tr-online-api-phalcon: aeb7a83b92853d532d19bbfac508461c641c3b78
 
-    docker run -it -p 3000:3000 -e INSTANCE=4 "next1"
+    sonar-scanner \
+    -Dsonar.projectKey=tr-online-api-phalcon \
+    -Dsonar.sources=. \
+    -Dsonar.host.url=https://sonarqube.sngkrn.xyz \
+    -Dsonar.login=aeb7a83b92853d532d19bbfac508461c641c3b78 \
+    -Dsonar.verbose=true
 
-Start docker, set 4 instances of PM2 in cluster mode and add host for connect:
+    sonar-scanner \
+    -Dsonar.projectKey=tr-online-v2-nextjs \
+    -Dsonar.sources=. \
+    -Dsonar.host.url=https://sonarqube.sngkrn.xyz \
+    -Dsonar.login=e0d7208b1834b940c3de06a340de30aec22ff6f1 \
+    -Dsonar.verbose=true
 
-    docker run -it -p 3000:3000 -e INSTANCE=4 --add-host connect.thairath.co.th:172.17.0.1 "next1"
+# JMeter
 
-## Commands
+## Create and run JMeter test plan in CLI mode
+We should run JMeter in UI mode only to create and configure the test plan
 
-Start the docker in background:
+Start JMeter in CLI mode
 
-    docker run -d "next1"
+    $jmeter
 
-List containers:
+Run test plan in CLI mode
 
-    docker ps
-
-Stop one or more running containers:
-
-    docker stop [CONTAINER ID]
-
-Start docker in interactive mode:
-
-    docker run -it -p 3000:3000 "next1"
-
-Start docker in interactive mode and get bash into container:
-
-    docker run -it -p 3000:3000 "next1" bash
-
-## Change logs
-
-Click to read [changelogs](CHANGELOG.MD)
+    $jmeter -n -t <jmeter test plan name>.jmx -l <test results in csv>.csv -e -o <test results in HTML>.html
