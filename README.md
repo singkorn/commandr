@@ -3,6 +3,8 @@
 - [Git](#git)
 - [Docker](#docker)
 - [Sonarqube](#sonarqube)
+- [JMeter](#jmeter)
+
 
 # Git
 
@@ -62,4 +64,17 @@ docker inspect --format='{{.Id}} {{.Parent}}' $(docker images --filter since=<im
     -Dsonar.host.url=https://sonarqube.sngkrn.xyz \
     -Dsonar.login=e0d7208b1834b940c3de06a340de30aec22ff6f1 \
     -Dsonar.verbose=true
+
+# JMeter
+
+## Create and run JMeter test plan in CLI mode
+We should run JMeter in UI mode only to create and configure the test plan
+
+Start JMeter in CLI mode
+
+    $jmeter
+
+Run test plan in CLI mode
+
+    $jmeter -n -t <jmeter test plan name>.jmx -l <test results in csv>.csv -e -o <test results in HTML>.html
 
